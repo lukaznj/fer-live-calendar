@@ -1,3 +1,4 @@
 .env
 latest.ics
 .venv
+service-account-credentials.json

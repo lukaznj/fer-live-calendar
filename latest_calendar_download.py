@@ -1,9 +1,7 @@
 import urllib.request, urllib.error
 import os
 
-def download_latest_updates(url: str) -> None:
-    file_name: str = os.getenv("CALENDAR_FILE_NAME")
-
+def download_latest_updates(url: str, file_name: str) -> None:
     try:
         urllib.request.urlretrieve(url, file_name)
 
