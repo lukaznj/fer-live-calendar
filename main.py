@@ -1,16 +1,39 @@
+import logging
 from dotenv import load_dotenv
+from googleapiclient.discovery import Resource
+from event import Event
+from google_calendar_api import get_google_service, remove_event, add_event
+from ics_parser import parse_ics, diff_checker
+from calendar_downloader import ics_file_updater
 import os
 
-from ics_parser import lea
-from latest_calendar_download import download_latest_updates
 
-load_dotenv()
+def calendar_change_check():
+    ics_download_url: str = os.getenv("CALENDAR_DOWNLOAD_URL")
+    google_calendar_id: str = os.getenv("CALENDAR_ID")
 
-calendar_download_url: str = os.getenv("CALENDAR_DOWNLOAD_URL")
-calendar_file_name: str = os.getenv("LATEST_CALENDAR_FILE_NAME")
+    ics_file_updater(ics_download_url)
 
-download_latest_updates(calendar_download_url, calendar_file_name)
+    current_events: list[Event] = parse_ics("latest.ics")
 
-latest_json: str = lea(calendar_file_name)
+    previous_events: list[Event] = parse_ics("previous.ics")
 
-print(latest_json)
+    removed_events, added_events = diff_checker(current_events, previous_events)
+
+    if removed_events or added_events:
+        service: Resource = get_google_service()
+
+        for event in removed_events:
+            remove_event(event.uid, google_calendar_id, service)
+
+        for event in added_events:
+            add_event(event, google_calendar_id, service)
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    )
+    calendar_change_check()
