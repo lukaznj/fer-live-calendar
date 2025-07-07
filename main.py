@@ -15,6 +15,7 @@ def calendar_change_check():
     ics_download_url: str = os.getenv("CALENDAR_DOWNLOAD_URL")
     google_calendar_id: str = os.getenv("CALENDAR_ID")
     data_dir: str = os.getenv("DATA_DIR")
+
     latest_ics_path = os.path.join(data_dir, "latest.ics")
     previous_ics_path = os.path.join(data_dir, "previous.ics")
 

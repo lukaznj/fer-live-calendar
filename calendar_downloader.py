@@ -4,9 +4,13 @@ import urllib.request, urllib.error
 import os
 from textwrap import dedent
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 DATA_DIR: str = os.getenv("DATA_DIR")
-LATEST_ICS_PATH = os.path.join(DATA_DIR, "latest.ics")
-PREVIOUS_ICS_PATH = os.path.join(DATA_DIR, "previous.ics")
+LATEST_ICS_PATH:str = os.path.join(DATA_DIR, "latest.ics")
+PREVIOUS_ICS_PATH:str = os.path.join(DATA_DIR, "previous.ics")
 
 def ensure_data_dir_exists():
     if not os.path.exists(DATA_DIR):
@@ -25,6 +29,7 @@ def download_latest_ics(url: str, file_path: str) -> None:
 
 
 def ics_file_updater(url: str) -> None:
+    ensure_data_dir_exists()
     if os.path.isfile(PREVIOUS_ICS_PATH):
         if os.path.exists(LATEST_ICS_PATH):
             shutil.copy(LATEST_ICS_PATH, PREVIOUS_ICS_PATH)
