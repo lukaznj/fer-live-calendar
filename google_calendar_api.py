@@ -4,7 +4,6 @@ from googleapiclient.discovery import build, Resource
 import os
 import json
 import logging
-from datetime import datetime
 
 from event import Event
 
@@ -58,16 +57,14 @@ def remove_event(event_uid: str, calendar_id: str, service: Resource):
 
 
 def get_google_service() -> Resource:
-    credentials_file_name: str = os.getenv("CREDENTIALS_FILE_NAME")
+    service_account_json_str = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
+    if not service_account_json_str:
+        raise ValueError("Environment variable 'GOOGLE_SERVICE_ACCOUNT_JSON' not set or empty.")
 
-    with open(credentials_file_name, "r") as file:
-        credentials_info = json.load(file)
-
-    # SERVICE_ACCOUNT_JSON = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
-    # if not SERVICE_ACCOUNT_JSON:
-    #     raise ValueError("Environment varijabla GOOGLE_SERVICE_ACCOUNT_JSON nije postavljena.")
-    #
-    # credentials_info = json.loads(SERVICE_ACCOUNT_JSON)
+    try:
+        credentials_info = json.loads(service_account_json_str)
+    except json.JSONDecodeError:
+        raise ValueError("'GOOGLE_SERVICE_ACCOUNT_JSON' not in valid JSON format.")
 
     credentials: Credentials = service_account.Credentials.from_service_account_info(
         credentials_info, scopes=["https://www.googleapis.com/auth/calendar"]

@@ -1,0 +1,6 @@
+.venv
+.env
+.env.example
+.gitignore
+latest.ics
+previous.ics
