@@ -57,14 +57,17 @@ def remove_event(event_uid: str, calendar_id: str, service: Resource):
 
 
 def get_google_service() -> Resource:
-    service_account_json_str = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
-    if not service_account_json_str:
-        raise ValueError("Environment variable 'GOOGLE_SERVICE_ACCOUNT_JSON' not set or empty.")
+    secret_path: str = "/run/secrets/google_credentials"
 
     try:
-        credentials_info = json.loads(service_account_json_str)
+        with open(secret_path, "r") as file:
+            credentials_info: str = json.load(file)
+
+    except FileNotFoundError:
+        raise ValueError(f"Docker secret not found on path: {secret_path}")
+
     except json.JSONDecodeError:
-        raise ValueError("'GOOGLE_SERVICE_ACCOUNT_JSON' not in valid JSON format.")
+        raise ValueError("Docker secret not in valid JSON format.")
 
     credentials: Credentials = service_account.Credentials.from_service_account_info(
         credentials_info, scopes=["https://www.googleapis.com/auth/calendar"]
