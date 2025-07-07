@@ -1,4 +1,6 @@
 import logging
+import time
+import schedule
 from dotenv import load_dotenv
 from googleapiclient.discovery import Resource
 from event import Event
@@ -9,6 +11,7 @@ import os
 
 
 def calendar_change_check():
+    logging.info("Starting new check cycle.")
     ics_download_url: str = os.getenv("CALENDAR_DOWNLOAD_URL")
     google_calendar_id: str = os.getenv("CALENDAR_ID")
 
@@ -36,4 +39,12 @@ if __name__ == "__main__":
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     )
+    logging.info("Starting scheduler.")
+
     calendar_change_check()
+
+    schedule.every().hour.do(calendar_change_check())
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
