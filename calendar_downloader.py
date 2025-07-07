@@ -4,10 +4,17 @@ import urllib.request, urllib.error
 import os
 from textwrap import dedent
 
+DATA_DIR: str = os.getenv("DATA_DIR")
+LATEST_ICS_PATH = os.path.join(DATA_DIR, "latest.ics")
+PREVIOUS_ICS_PATH = os.path.join(DATA_DIR, "previous.ics")
 
-def download_latest_ics(url: str, file_name: str) -> None:
+def ensure_data_dir_exists():
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+
+def download_latest_ics(url: str, file_path: str) -> None:
     try:
-        urllib.request.urlretrieve(url, file_name)
+        urllib.request.urlretrieve(url, file_path)
         logging.info(f"Successfully downloaded the latest ics file.")
 
     except urllib.error.URLError as e:
@@ -18,12 +25,13 @@ def download_latest_ics(url: str, file_name: str) -> None:
 
 
 def ics_file_updater(url: str) -> None:
-    if os.path.isfile("previous.ics"):
-        shutil.copy("latest.ics", "previous.ics")
-        download_latest_ics(url, "latest.ics")
+    if os.path.isfile(PREVIOUS_ICS_PATH):
+        if os.path.exists(LATEST_ICS_PATH):
+            shutil.copy(LATEST_ICS_PATH, PREVIOUS_ICS_PATH)
+        download_latest_ics(url, LATEST_ICS_PATH)
 
     else:
-        with open("previous.ics", "w") as file:
+        with open(PREVIOUS_ICS_PATH, "w") as file:
             default_config: str = dedent("""\
                     BEGIN:VCALENDAR
                     VERSION:2.0
@@ -33,7 +41,7 @@ def ics_file_updater(url: str) -> None:
                 """)
             file.write(default_config)
 
-        download_latest_ics(url, "latest.ics")
+        download_latest_ics(url, LATEST_ICS_PATH)
 
 
 

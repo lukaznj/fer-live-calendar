@@ -14,12 +14,15 @@ def calendar_change_check():
     logging.info("Starting new check cycle.")
     ics_download_url: str = os.getenv("CALENDAR_DOWNLOAD_URL")
     google_calendar_id: str = os.getenv("CALENDAR_ID")
+    data_dir: str = os.getenv("DATA_DIR")
+    latest_ics_path = os.path.join(data_dir, "latest.ics")
+    previous_ics_path = os.path.join(data_dir, "previous.ics")
 
     ics_file_updater(ics_download_url)
 
-    current_events: list[Event] = parse_ics("latest.ics")
+    current_events: list[Event] = parse_ics(latest_ics_path)
 
-    previous_events: list[Event] = parse_ics("previous.ics")
+    previous_events: list[Event] = parse_ics(previous_ics_path)
 
     removed_events, added_events = diff_checker(current_events, previous_events)
 

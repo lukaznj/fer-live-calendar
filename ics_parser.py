@@ -2,8 +2,8 @@ from icalendar import Calendar
 from event import Event
 
 
-def parse_ics(file_name: str) -> list[Event]:
-    with open(file_name, "r") as file:
+def parse_ics(file_path: str) -> list[Event]:
+    with open(file_path, "r") as file:
         cal: Calendar = Calendar.from_ical(file.read())
 
     events: list[Event] = []
