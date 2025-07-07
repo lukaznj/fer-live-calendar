@@ -3,6 +3,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build, Resource
 import os
 import json
+import base64
 import logging
 
 from event import Event
@@ -57,17 +58,19 @@ def remove_event(event_uid: str, calendar_id: str, service: Resource):
 
 
 def get_google_service() -> Resource:
-    secret_path: str = "/run/secrets/google_credentials"
+    base64_str = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON_BASE64")
+    if not base64_str:
+        raise ValueError("Environment variable 'GOOGLE_SERVICE_ACCOUNT_JSON_BASE64' not set.")
 
     try:
-        with open(secret_path, "r") as file:
-            credentials_info: str = json.load(file)
+        decoded_json_str = base64.b64decode(base64_str).decode('utf-8')
 
-    except FileNotFoundError:
-        raise ValueError(f"Docker secret not found on path: {secret_path}")
+        credentials_info = json.loads(decoded_json_str)
 
+    except (base64.binascii.Error, UnicodeDecodeError):
+        raise ValueError("Variable 'GOOGLE_SERVICE_ACCOUNT_JSON_BASE64' not valid Base64 string.")
     except json.JSONDecodeError:
-        raise ValueError("Docker secret not in valid JSON format.")
+        raise ValueError("Decoded string not in valid JSON format.")
 
     credentials: Credentials = service_account.Credentials.from_service_account_info(
         credentials_info, scopes=["https://www.googleapis.com/auth/calendar"]
