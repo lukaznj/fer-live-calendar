@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     calendar_change_check()
 
-    schedule.every().hour.do(calendar_change_check())
+    schedule.every().hour.do(calendar_change_check)
 
     while True:
         schedule.run_pending()
