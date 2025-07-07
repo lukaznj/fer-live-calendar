@@ -4,7 +4,7 @@ import schedule
 from dotenv import load_dotenv
 from googleapiclient.discovery import Resource
 from event import Event
-from google_calendar_api import get_google_service, remove_event, add_event
+from google_calendar_api import get_google_service, remove_events_batch, add_events_batch
 from ics_parser import parse_ics, diff_checker
 from calendar_downloader import ics_file_updater
 import os
@@ -30,11 +30,10 @@ def calendar_change_check():
     if removed_events or added_events:
         service: Resource = get_google_service()
 
-        for event in removed_events:
-            remove_event(event.uid, google_calendar_id, service)
+        removed_events_uids: list[str] = [event.uid for event in removed_events]
+        remove_events_batch(removed_events_uids, google_calendar_id, service)
 
-        for event in added_events:
-            add_event(event, google_calendar_id, service)
+        add_events_batch(added_events, google_calendar_id, service)
 
 
 if __name__ == "__main__":

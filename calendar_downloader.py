@@ -2,8 +2,8 @@ import logging
 import shutil
 import urllib.request, urllib.error
 import os
-from textwrap import dedent
 
+from textwrap import dedent
 from dotenv import load_dotenv
 
 load_dotenv()
